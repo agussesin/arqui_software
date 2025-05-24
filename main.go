@@ -2,7 +2,8 @@ package main
 
 import (
 	"arqui-software/database" // importa tu paquete de conexión
-	"arqui-software/routes"   // importa tus rutas
+
+	"arqui-software/routes" // importa tus rutas
 
 	"github.com/gin-gonic/gin" // framework web
 )

@@ -1,3 +1,4 @@
+// RUTAS (routes/rutas.go)
 package routes
 
 import (
@@ -12,4 +13,6 @@ func ConfigurarRutas(r *gin.Engine) {
 			"mensaje": "¡Servidor funcionando correctamente, Agus!",
 		})
 	})
+	// Acá podés agregar rutas para usuarios, actividades, inscripciones
+	// por ejemplo: GET /usuarios, POST /actividades, etc.
 }
