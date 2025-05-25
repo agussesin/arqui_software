@@ -1,106 +1,84 @@
 package controllers
 
 import (
-    "net/http"
-    "os"
-    "time"
+	"net/http"
+	"os"
+	"time"
 
-    "arqui-software/database"
-    "arqui-software/models"
+	"arqui-software/database"
+	"arqui-software/models"
+	"arqui-software/utils"
 
-    "github.com/gin-gonic/gin"
-    "github.com/golang-jwt/jwt/v5"
-    "golang.org/x/crypto/bcrypt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 )
 
-// Se obtiene la clave secreta para firmar el token JWT desde una variable de entorno
+// Clave secreta del JWT desde variable de entorno
 var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
-// Función para hashear contraseñas con bcrypt
-func hashPassword(password string) (string, error) {
-    bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-    return string(bytes), err
-}
-
-// Función para comparar una contraseña con su hash almacenado
-func checkPasswordHash(password, hash string) bool {
-    err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-    return err == nil
-}
-
-// Estructura que representa los datos necesarios para hacer login
+// Estructura del JSON de login
 type LoginInput struct {
-    Email    string `json:"email" binding:"required"`
-    Password string `json:"password" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Password string `json:"password" binding:"required"`
 }
 
-// Controlador para realizar el login
+// Login de usuario
 func Login(c *gin.Context) {
-    var input LoginInput
+	var input LoginInput
 
-    // Intenta convertir el JSON recibido en el cuerpo a la estructura LoginInput
-    if err := c.ShouldBindJSON(&input); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	// Parsear el JSON recibido
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    var user models.Usuario
+	var user models.Usuario
 
-    // Busca en la base de datos un usuario con ese email
-    result := database.DB.Where("email = ?", input.Email).First(&user)
-    if result.Error != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no encontrado"})
-        return
-    }
+	// Buscar al usuario por email
+	result := database.DB.Where("email = ?", input.Email).First(&user)
+	if result.Error != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuario no encontrado"})
+		return
+	}
 
-    // Compara la contraseña ingresada con la contraseña hasheada
-    if !checkPasswordHash(input.Password, user.Password) {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Contraseña incorrecta"})
-        return
-    }
+	// Comparar el hash de la contraseña
+	if !utils.CheckPasswordSHA256(input.Password, user.Password) {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Contraseña incorrecta"})
+		return
+	}
 
-    // Si es correcto, genera el token JWT con datos útiles del usuario
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-        "user_id": user.IdUsuario,
-        "role":    user.Rol,
-        "exp":     time.Now().Add(time.Hour * 1).Unix(), // expira en 1 hora
-    })
+	// Generar el token JWT
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_id": user.IdUsuario,
+		"role":    user.Rol,
+		"exp":     time.Now().Add(time.Hour * 1).Unix(),
+	})
 
-    // Firma el token con la clave secreta
-    tokenString, err := token.SignedString(jwtKey)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el token"})
-        return
-    }
+	tokenString, err := token.SignedString(jwtKey)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo generar el token"})
+		return
+	}
 
-    // Devuelve el token al cliente
-    c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{"token": tokenString})
 }
 
-// Controlador para registrar un nuevo usuario
+// Registro de nuevo usuario
 func CrearUsuario(c *gin.Context) {
-    var usuario models.Usuario
+	var usuario models.Usuario
 
-    // Intenta convertir el JSON recibido en el cuerpo a la estructura Usuario
-    if err := c.ShouldBindJSON(&usuario); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.ShouldBindJSON(&usuario); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    // Hashea la contraseña antes de guardarla en la base de datos
-    hash, err := hashPassword(usuario.Password)
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo encriptar la contraseña"})
-        return
-    }
-    usuario.Password = hash
+	// Hashear contraseña con SHA256
+	usuario.Password = utils.HashPasswordSHA256(usuario.Password)
 
-    // Intenta guardar el nuevo usuario
-    if err := database.DB.Create(&usuario).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el usuario"})
-        return
-    }
+	if err := database.DB.Create(&usuario).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al guardar el usuario"})
+		return
+	}
 
-    // Devuelve el usuario recién creado (sin exponer la contraseña)
-    c.JSON(http.StatusCreated, usuario)
+	c.JSON(http.StatusCreated, usuario)
 }
