@@ -33,5 +33,5 @@ func Conectar() {
 
 	fmt.Println("✅ Conexión exitosa a la base de datos")
 
-	DB.AutoMigrate(&models.Usuario{})
+DB.AutoMigrate(&models.Usuario{}, &models.Actividad{}, &models.Inscripcion{})
 }
