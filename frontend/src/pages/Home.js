@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
+import Navbar from '../components/Navbar';
 
 export default function Home() {
   const [actividades, setActividades] = useState([]);
@@ -20,6 +21,7 @@ export default function Home() {
 
   return (
     <div>
+      <Navbar />
       <h2>Actividades Disponibles</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       <ul>

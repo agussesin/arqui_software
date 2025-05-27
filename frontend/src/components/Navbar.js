@@ -26,7 +26,7 @@ export default function Navbar() {
 
   return (
     <nav style={{ marginBottom: '20px' }}>
-    <h3>🔧 DEBUG: Navbar cargado</h3>
+    <h3>GIMNASIO</h3>
       <Link to="/">Inicio</Link> {' | '}
       {!token && <Link to="/login">Login</Link>}
       {token && (
