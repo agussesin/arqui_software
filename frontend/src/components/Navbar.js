@@ -33,6 +33,7 @@ export default function Navbar() {
         <>
           {' | '}<Link to="/mis-actividades">Mis actividades</Link>
           {role === 'Admin' && (
+            
             <>
               {' | '}<Link to="/admin">Panel Admin</Link>
             </>
