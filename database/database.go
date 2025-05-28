@@ -40,6 +40,11 @@ func Conectar() {
 
 	fmt.Println("✅ Conexión exitosa a la base de datos")
 
-	// Crear las tablas automáticamente si no existen, usando los modelos
 	DB.AutoMigrate(&models.Usuario{}, &models.Actividad{}, &models.Inscripcion{})
+}
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error al cargar el archivo .env")
+	}
 }

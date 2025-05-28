@@ -16,13 +16,14 @@ export default function AdminPanel() {
   const token = localStorage.getItem('token');
   const config = {
     headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
   };
 
   const fetchActividades = () => {
-    axios.get('/actividades')
+    axios
+      .get('/actividades')
       .then((res) => setActividades(res.data))
       .catch(() => setMensaje('Error al cargar actividades'));
   };
@@ -36,31 +37,38 @@ export default function AdminPanel() {
   };
 
   const crearActividad = (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!token) {
-    setMensaje('Error: usuario no autenticado');
-    return;
-  }
+    if (!token) {
+      setMensaje('Error: usuario no autenticado');
+      return;
+    }
 
-  const actividad = {
-    ...form,
-    duracion: parseInt(form.duracion, 10),
-    cupo: parseInt(form.cupo, 10)
+    const actividad = {
+      ...form,
+      duracion: parseInt(form.duracion, 10),
+      cupo: parseInt(form.cupo, 10),
+    };
+
+    axios
+      .post('/admin/actividades', actividad, config)
+      .then(() => {
+        setMensaje('Actividad creada correctamente ✅');
+        setForm({
+          descripcion: '',
+          categoria: '',
+          profesor: '',
+          duracion: '',
+          periodicidad: '',
+          cupo: '',
+        });
+        fetchActividades();
+      })
+      .catch((error) => {
+        console.error('Error al crear actividad:', error.response?.data || error.message);
+        setMensaje('Error al crear actividad ❌');
+      });
   };
-
-  axios.post('/admin/actividades', actividad, config)
-    .then(() => {
-      setMensaje('Actividad creada correctamente ✅');
-      setForm({ descripcion: '', categoria: '', profesor: '', duracion: '', periodicidad: '', cupo: '' });
-      fetchActividades();
-    })
-    .catch((error) => {
-      console.error('Error al crear actividad:', error.response?.data || error.message);
-      setMensaje('Error al crear actividad ❌');
-    });
-};
-
 
   const eliminarActividad = (id) => {
     if (!token) {
@@ -68,7 +76,8 @@ export default function AdminPanel() {
       return;
     }
 
-    axios.delete(`/admin/actividades/${id}`, config)
+    axios
+      .delete(`/admin/actividades/${id}`, config)
       .then(() => {
         setMensaje('Actividad eliminada ✅');
         fetchActividades();
@@ -79,7 +88,8 @@ export default function AdminPanel() {
   const editarActividad = (act) => {
     const nuevosValores = prompt(`Editar descripción de "${act.descripcion}":`, act.descripcion);
     if (nuevosValores && token) {
-      axios.put(`/admin/actividades/${act.id_actividad}`, { ...act, descripcion: nuevosValores }, config)
+      axios
+        .put(`/admin/actividades/${act.id_actividad}`, { ...act, descripcion: nuevosValores }, config)
         .then(() => {
           setMensaje('Actividad actualizada ✅');
           fetchActividades();
