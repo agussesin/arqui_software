@@ -13,6 +13,14 @@ export default function AdminPanel() {
   });
   const [mensaje, setMensaje] = useState('');
 
+  const token = localStorage.getItem('token');
+  const config = {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  };
+
   const fetchActividades = () => {
     axios.get('/actividades')
       .then((res) => setActividades(res.data))
@@ -28,18 +36,39 @@ export default function AdminPanel() {
   };
 
   const crearActividad = (e) => {
-    e.preventDefault();
-    axios.post('/admin/actividades', form)
-      .then(() => {
-        setMensaje('Actividad creada correctamente ✅');
-        setForm({ descripcion: '', categoria: '', profesor: '', duracion: '', periodicidad: '', cupo: '' });
-        fetchActividades();
-      })
-      .catch(() => setMensaje('Error al crear actividad ❌'));
+  e.preventDefault();
+
+  if (!token) {
+    setMensaje('Error: usuario no autenticado');
+    return;
+  }
+
+  const actividad = {
+    ...form,
+    duracion: parseInt(form.duracion, 10),
+    cupo: parseInt(form.cupo, 10)
   };
 
+  axios.post('/admin/actividades', actividad, config)
+    .then(() => {
+      setMensaje('Actividad creada correctamente ✅');
+      setForm({ descripcion: '', categoria: '', profesor: '', duracion: '', periodicidad: '', cupo: '' });
+      fetchActividades();
+    })
+    .catch((error) => {
+      console.error('Error al crear actividad:', error.response?.data || error.message);
+      setMensaje('Error al crear actividad ❌');
+    });
+};
+
+
   const eliminarActividad = (id) => {
-    axios.delete(`/admin/actividades/${id}`)
+    if (!token) {
+      setMensaje('Error: usuario no autenticado');
+      return;
+    }
+
+    axios.delete(`/admin/actividades/${id}`, config)
       .then(() => {
         setMensaje('Actividad eliminada ✅');
         fetchActividades();
@@ -49,8 +78,8 @@ export default function AdminPanel() {
 
   const editarActividad = (act) => {
     const nuevosValores = prompt(`Editar descripción de "${act.descripcion}":`, act.descripcion);
-    if (nuevosValores) {
-      axios.put(`/admin/actividades/${act.id_actividad}`, { ...act, descripcion: nuevosValores })
+    if (nuevosValores && token) {
+      axios.put(`/admin/actividades/${act.id_actividad}`, { ...act, descripcion: nuevosValores }, config)
         .then(() => {
           setMensaje('Actividad actualizada ✅');
           fetchActividades();
