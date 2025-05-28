@@ -33,5 +33,11 @@ func Conectar() {
 
 	fmt.Println("✅ Conexión exitosa a la base de datos")
 
-DB.AutoMigrate(&models.Usuario{}, &models.Actividad{}, &models.Inscripcion{})
+	DB.AutoMigrate(&models.Usuario{}, &models.Actividad{}, &models.Inscripcion{})
+}
+func init() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error al cargar el archivo .env")
+	}
 }

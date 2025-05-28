@@ -1,0 +1,99 @@
+.pricing-section {
+    background: #0e0e0e;
+    /* fondo sólido oscuro */
+    min-height: 100vh;
+    padding: 4rem 2rem;
+    text-align: center;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pricing-section h2 {
+    font-size: 2.8rem;
+    margin-bottom: 3rem;
+    font-weight: 700;
+}
+
+.pricing-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+    justify-content: center;
+}
+
+/* Efecto VIDRIO con animación */
+.card {
+    background: rgba(255, 255, 255, 0.06);
+    /* más transparencia */
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    /* soporte Safari */
+    border-radius: 1.5rem;
+    padding: 2rem;
+    width: 280px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    /* animación */
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.card:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.card:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 36px rgba(0, 0, 0, 0.6);
+}
+
+.card h3 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+}
+
+.card p {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+}
+
+.card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem 0;
+}
+
+.card li {
+    margin-bottom: 0.5rem;
+}
+
+.card button {
+    background: #ff4c29;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.card button:hover {
+    background: #ff6b4a;
+}

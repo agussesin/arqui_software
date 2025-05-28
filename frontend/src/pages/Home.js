@@ -1,36 +1,42 @@
-import React, { useEffect, useState } from 'react';
-import axios from '../services/axios';
-import Navbar from '../components/Navbar';
+import React from 'react';
+import './Home.css';
+import PricingSection from '../components/PricingSection';
 
 export default function Home() {
-  const [actividades, setActividades] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchActividades = async () => {
-      try {
-        const response = await axios.get('/actividades');
-        setActividades(response.data);
-      } catch (err) {
-        setError('Error al cargar actividades');
-      }
-    };
-
-    fetchActividades();
-  }, []);
-
   return (
     <div>
-      <Navbar />
-      <h2>Actividades Disponibles</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      <ul>
-        {actividades.map((actividad) => (
-          <li key={actividad.id_actividad}>
-            <strong>{actividad.descripcion}</strong> — Categoría: {actividad.categoria} — Profesor: {actividad.profesor}
-          </li>
-        ))}
-      </ul>
+      {/* HERO principal */}
+      <div
+        className="landing"
+        style={{
+          backgroundImage: "url('/hero.jpg')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'column',
+          textAlign: 'center',
+          filter: 'grayscale(100%)',
+        }}
+      >
+        <div className="hero">
+          <h1>THE GYM SALE UPGRADED</h1>
+          <p className="descripcion">Tu primer mes es gratis. Cupos limitados.</p>
+          <a href="#planes" className="cta-btn">Ver planes</a>
+        </div>
+      </div>
+
+      {/* SECCIÓN DE PLANES */}
+      <div id="planes">
+        <PricingSection />
+      </div>
+
+      {/* CTA final */}
+      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+        <a href="/login" className="cta-btn">Unite ahora</a>
+      </div>
     </div>
   );
 }
