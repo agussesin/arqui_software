@@ -1,42 +1,58 @@
-package main
+package main // Paquete principal de ejecución
 
 import (
-	"arqui-software/database" // importa tu paquete de conexión
-	"arqui-software/routes"   // importa tus rutas
+	"arqui-software/database" // Se importa el módulo que se encarga de conectar a la base de datos
+	"arqui-software/routes"   // Se importan las rutas definidas
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin" // framework web
+	"github.com/gin-contrib/cors" // Middleware para manejo de CORS (Cross-Origin Resource Sharing)
+	"github.com/gin-gonic/gin"    // Framework web principal (Gin)
 )
 
 func main() {
-	// Conectamos a la base de datos
-	database.Conectar()
-	// Creamos el router con Gin
-	r := gin.Default()
+	// ======================
+	// CONEXIÓN A LA BASE DE DATOS
+	// ======================
+	database.Conectar() // Ejecuta la conexión y migración automática de las tablas
 
+	// ======================
+	// CONFIGURACIÓN DEL SERVIDOR
+	// ======================
+	r := gin.Default() // Crea una nueva instancia del servidor con configuraciones por defecto (logging, recovery)
+
+	// ======================
+	// CONFIGURACIÓN DE HEADERS (para permitir peticiones de otros dominios)
+	// ======================
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+
+		// Si la petición es de tipo OPTIONS (pre-flight), se responde directamente
 		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
+			c.AbortWithStatus(204) // No Content
 			return
 		}
 		c.Next()
 	})
 
-	// Configuramos CORS para permitir requests desde React
+	// ======================
+	// CONFIGURACIÓN CORS PARA FRONTEND REACT
+	// ======================
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000"},
+		AllowOrigins:     []string{"http://localhost:3000"}, // Permite conexión desde React (en localhost)
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
 
-	// Configuramos todas las rutas disponibles
-	routes.ConfigurarRutas(r)
+	// ======================
+	// CONFIGURAR TODAS LAS RUTAS DE LA APP
+	// ======================
+	routes.ConfigurarRutas(r) // Carga todas las rutas definidas en routes/rutas.go
 
-	// Arrancamos el servidor en el puerto 8080
-	r.Run(":8080")
+	// ======================
+	// INICIAR EL SERVIDOR
+	// ======================
+	r.Run(":8080") // Inicia el servidor en localhost:8080
 }
