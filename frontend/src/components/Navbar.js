@@ -32,6 +32,7 @@ export default function Navbar() {
 
         {token && (
           <>
+            <Link to="/actividades" className="btn">Actividades</Link>
             <Link to="/mis-actividades" className="btn">Mis actividades</Link>
             {role === 'Admin' && (
               <Link to="/admin" className="btn">Panel Admin</Link>
@@ -55,7 +56,7 @@ export default function Navbar() {
             pathLength="100"
             x="0"
             y="0"
-            width="400"
+            width="800"
             height="60"
             fill="transparent"
             strokeWidth="5"
