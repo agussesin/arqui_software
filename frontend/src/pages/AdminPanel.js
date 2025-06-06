@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
+import './AdminPanel.css'; // Asegurate de importar el archivo CSS
 
 export default function AdminPanel() {
   const [actividades, setActividades] = useState([]);
@@ -99,10 +100,10 @@ export default function AdminPanel() {
   };
 
   return (
-    <div style={{ padding: '20px', color: 'white', backgroundColor: '#0e0e0e', minHeight: '100vh' }}>
+    <div className="admin-container">
       <h2>Panel de Administración</h2>
 
-      <form onSubmit={crearActividad} style={{ marginBottom: '20px' }}>
+      <form onSubmit={crearActividad} className="admin-form">
         <h4>Crear Nueva Actividad</h4>
         {['descripcion', 'categoria', 'profesor', 'duracion', 'periodicidad', 'cupo'].map((campo) => (
           <input
@@ -112,70 +113,22 @@ export default function AdminPanel() {
             value={form[campo]}
             onChange={handleChange}
             required
-            style={{
-              backgroundColor: '#1f1f1f',
-              color: 'white',
-              border: '1px solid #555',
-              borderRadius: '5px',
-              padding: '8px',
-              margin: '4px',
-              width: '200px'
-            }}
+            className="admin-input"
           />
         ))}
-        <br />
-        <button
-          type="submit"
-          style={{
-            backgroundColor: '#ff4c29',
-            color: 'white',
-            border: 'none',
-            padding: '10px 20px',
-            borderRadius: '6px',
-            fontWeight: 'bold',
-            marginTop: '10px',
-            cursor: 'pointer'
-          }}
-        >
-          Crear
-        </button>
+        <button type="submit" className="admin-button">Crear</button>
       </form>
 
       {mensaje && <p>{mensaje}</p>}
 
       <h4>Actividades Existentes</h4>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
+      <ul className="admin-actividad-list">
         {actividades.map((act) => (
-          <li key={act.id_actividad} style={{ backgroundColor: '#1a1a1a', marginBottom: '10px', padding: '10px', borderRadius: '5px' }}>
+          <li key={act.id_actividad} className="admin-actividad-item">
             <strong>{act.descripcion}</strong> — {act.categoria} — Prof: {act.profesor}
             <br />
-            <button
-              onClick={() => editarActividad(act)}
-              style={{
-                backgroundColor: '#444',
-                color: 'white',
-                border: 'none',
-                padding: '5px 10px',
-                borderRadius: '4px',
-                marginRight: '10px',
-                cursor: 'pointer'
-              }}
-            >
-              Editar
-            </button>
-            <button
-              onClick={() => eliminarActividad(act.id_actividad)}
-              style={{
-                backgroundColor: '#b00020',
-                color: 'white',
-                border: 'none',
-                padding: '5px 10px',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Eliminar
-            </button>
+            <button onClick={() => editarActividad(act)} className="admin-button-secondary">Editar</button>
+            <button onClick={() => eliminarActividad(act.id_actividad)} className="admin-button-danger">Eliminar</button>
           </li>
         ))}
       </ul>

@@ -1,0 +1,63 @@
+.admin-container {
+  padding: 20px;
+  color: white;
+  background-color: #0e0e0e;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.admin-form {
+  margin-bottom: 20px;
+}
+
+.admin-input {
+  background-color: #1f1f1f;
+  color: white;
+  border: 1px solid #555;
+  border-radius: 5px;
+  padding: 8px;
+  margin: 4px;
+  width: 200px;
+}
+
+.admin-button {
+  background-color: #ff4c29;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.admin-actividad-list {
+  list-style: none;
+  padding: 0;
+}
+
+.admin-actividad-item {
+  background-color: #1a1a1a;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.admin-button-secondary {
+  background-color: #444;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.admin-button-danger {
+  background-color: #b00020;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
