@@ -54,3 +54,74 @@
         transform: translateY(10px);
     }
 }
+
+.uiverse-btn {
+    position: relative;
+    background-color: #0f172a;
+    height: 3rem;
+    /* antes: 4rem */
+    width: 12rem;
+    /* antes: 16rem */
+    border: 2px solid #0d9488;
+    color: white;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 0.75rem;
+    overflow: hidden;
+    padding: 0.5rem 1rem;
+    /* antes: 0.75rem */
+    text-align: center;
+    transition: all 0.5s ease;
+    transform: scale(1);
+    display: inline-block;
+    text-decoration: none;
+}
+
+
+.uiverse-btn:hover {
+    border-color: #34d399;
+    color: #6ee7b7;
+    transform: scale(1.05);
+}
+
+.uiverse-btn::before {
+    content: '';
+    position: absolute;
+    width: 2.5rem;
+    height: 2.5rem;
+    right: 0.5rem;
+    top: 0.5rem;
+    z-index: 10;
+    background-color: #6366f1;
+    border-radius: 9999px;
+    filter: blur(8px);
+    transition: all 0.5s ease;
+}
+
+.uiverse-btn::after {
+    content: '';
+    position: absolute;
+    width: 4rem;
+    height: 4rem;
+    right: 1.5rem;
+    top: 1rem;
+    background-color: #2dd4bf;
+    border-radius: 9999px;
+    filter: blur(8px);
+    z-index: 10;
+    transition: all 0.5s ease;
+}
+
+.uiverse-btn::before {
+    width: 2rem;
+    height: 2rem;
+    right: 0.5rem;
+    top: 0.5rem;
+}
+
+.uiverse-btn::after {
+    width: 3rem;
+    height: 3rem;
+    right: 1rem;
+    top: 0.75rem;
+}

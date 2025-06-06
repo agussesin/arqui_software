@@ -24,7 +24,8 @@ export default function Home() {
         <div className="hero">
           <h1>THE GYM SALE UPGRADED</h1>
           <p className="descripcion">Tu primer mes es gratis. Cupos limitados.</p>
-          <a href="#planes" className="cta-btn">Ver planes</a>
+          <a href="#planes" className="uiverse-btn">Ver planes</a>
+
         </div>
       </div>
 
