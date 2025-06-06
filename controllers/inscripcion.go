@@ -53,6 +53,27 @@ func ActividadesInscripto(c *gin.Context) {
 		return
 	}
 
-	// Devuelve la lista de inscripciones en formato JSON
-	c.JSON(http.StatusOK, inscripciones)
+	type InscripcionConActividad struct {
+		IdInscripcion uint             `json:"id_inscripcion"`
+		IdUsuario     uint             `json:"id_usuario"`
+		IdActividad   uint             `json:"id_actividad"`
+		Actividad     models.Actividad `json:"actividad"`
+	}
+
+	var resultado []InscripcionConActividad
+	for _, insc := range inscripciones {
+		var actividad models.Actividad
+		if err := database.DB.First(&actividad, insc.IdActividad).Error; err != nil {
+			continue // Si no encuentra la actividad, la saltea
+		}
+		resultado = append(resultado, InscripcionConActividad{
+			IdInscripcion: insc.IdInscripcion,
+			IdUsuario:     insc.IdUsuario,
+			IdActividad:   insc.IdActividad,
+			Actividad:     actividad,
+		})
+	}
+
+	// Devuelve la lista de inscripciones con detalles de la actividad
+	c.JSON(http.StatusOK, resultado)
 }

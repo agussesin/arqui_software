@@ -7,6 +7,7 @@ import PricingSection from './components/PricingSection';
 import Navbar from './components/Navbar';
 import Actividades from './pages/Actividades';
 import ActividadDetalle from './pages/ActividadDetalle';
+import MisActividades from './pages/MisActividades';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/actividades" element={<Actividades />} />
         <Route path="/actividad/:id" element={<ActividadDetalle />} />
+        <Route path="/mis-actividades" element={<MisActividades />} />
       </Routes>
     </Router>
   );
