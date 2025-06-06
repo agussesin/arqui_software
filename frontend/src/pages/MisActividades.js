@@ -68,11 +68,11 @@ const MisActividades = () => {
     }}>
       <h1>Mis Actividades</h1>
       
-      {actividades.length === 0 ? (
+      {Array.isArray(actividades) && actividades.length === 0 ? (
         <p>No estás inscripto en ninguna actividad todavía</p>
       ) : (
         <div style={{ display: 'grid', gap: '20px' }}>
-          {actividades.map((actividad) => (
+          {Array.isArray(actividades) && actividades.map((actividad) => (
             <div 
               key={actividad.id_inscripcion}
               style={{

@@ -77,3 +77,22 @@ func ActividadesInscripto(c *gin.Context) {
 	// Devuelve la lista de inscripciones con detalles de la actividad
 	c.JSON(http.StatusOK, resultado)
 }
+
+// Eliminar una inscripción por usuario y actividad
+func EliminarInscripcion(c *gin.Context) {
+	idUsuario := c.Param("id_usuario")
+	idActividad := c.Param("id_actividad")
+
+	var inscripcion models.Inscripcion
+	if err := database.DB.Where("id_usuario = ? AND id_actividad = ?", idUsuario, idActividad).First(&inscripcion).Error; err != nil {
+		c.JSON(404, gin.H{"error": "Inscripción no encontrada"})
+		return
+	}
+
+	if err := database.DB.Delete(&inscripcion).Error; err != nil {
+		c.JSON(500, gin.H{"error": "No se pudo eliminar la inscripción"})
+		return
+	}
+
+	c.JSON(200, gin.H{"mensaje": "Inscripción eliminada correctamente"})
+}

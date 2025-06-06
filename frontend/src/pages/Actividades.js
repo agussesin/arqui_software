@@ -1,19 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
+import { jwtDecode } from 'jwt-decode';
 import './Actividades.css';
 
 function Actividades() {
   const [actividades, setActividades] = useState([]);
   const [detalle, setDetalle] = useState(null);
   const [mensaje, setMensaje] = useState('');
+  const [inscripciones, setInscripciones] = useState([]);
+  const [loadingInscripciones, setLoadingInscripciones] = useState(true);
 
   const token = localStorage.getItem('token');
 
   const getUserIdFromToken = () => {
     if (!token) return null;
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.id_usuario || payload.user_id;
+      const decoded = jwtDecode(token);
+      return decoded.user_id || decoded.id_usuario;
     } catch (e) {
       return null;
     }
@@ -31,24 +34,57 @@ function Actividades() {
       });
   }, []);
 
+  useEffect(() => {
+    if (!id_usuario) return;
+    setLoadingInscripciones(true);
+    axios.get(`/mis-actividades/${id_usuario}`)
+      .then((response) => {
+        setInscripciones(response.data);
+      })
+      .catch((error) => {
+        setInscripciones([]);
+        console.error('Error al obtener inscripciones:', error);
+      })
+      .finally(() => setLoadingInscripciones(false));
+  }, [id_usuario]);
+
   const mostrarDetalle = (actividad) => {
     setDetalle(actividad);
     setMensaje('');
   };
 
-  const inscribirse = () => {
-    if (!detalle || !id_usuario) return;
+  const estaInscripto = (id_actividad) => {
+    if (!Array.isArray(inscripciones)) return false;
+    return inscripciones.some(
+      (insc) => insc.id_actividad === id_actividad
+    );
+  };
 
-    axios.post('/inscripciones', {
-      id_usuario: id_usuario,
-      id_actividad: detalle.id_actividad
-    })
-    .then(() => {
+  const inscribirse = async () => {
+    if (!detalle || !id_usuario) return;
+    try {
+      await axios.post('/inscripciones', {
+        id_usuario: id_usuario,
+        id_actividad: detalle.id_actividad
+      });
       setMensaje('¡Inscripción exitosa!');
-    })
-    .catch(() => {
+      const resp = await axios.get(`/mis-actividades/${id_usuario}`);
+      setInscripciones(resp.data);
+    } catch {
       setMensaje('No se pudo realizar la inscripción.');
-    });
+    }
+  };
+
+  const desinscribirse = async () => {
+    if (!detalle || !id_usuario) return;
+    try {
+      await axios.delete(`/inscripciones/${id_usuario}/${detalle.id_actividad}`);
+      setMensaje('Te desinscribiste correctamente.');
+      const resp = await axios.get(`/mis-actividades/${id_usuario}`);
+      setInscripciones(resp.data);
+    } catch {
+      setMensaje('No se pudo desinscribir.');
+    }
   };
 
   return (
@@ -74,8 +110,14 @@ function Actividades() {
           <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
           <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
           <p><strong>Cupo:</strong> {detalle.cupo}</p>
-          <button onClick={inscribirse}>Inscribirme</button>
-          {mensaje && <p style={{ color: mensaje.includes('éxito') ? 'lightgreen' : 'red' }}>{mensaje}</p>}
+          {!loadingInscripciones && (
+            estaInscripto(detalle.id_actividad) ? (
+              <button onClick={desinscribirse} style={{ backgroundColor: '#b00020' }}>Desinscribirme</button>
+            ) : (
+              <button onClick={inscribirse}>Inscribirme</button>
+            )
+          )}
+          {mensaje && <p style={{ color: mensaje.includes('éxito') ? 'lightgreen' : mensaje.includes('correctamente') ? 'lightgreen' : 'red' }}>{mensaje}</p>}
         </div>
       )}
     </div>

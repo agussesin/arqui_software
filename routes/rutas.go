@@ -64,4 +64,7 @@ func ConfigurarRutas(r *gin.Engine) {
 		// Eliminar una actividad por ID
 		admin.DELETE("/actividades/:id", controllers.EliminarActividad)
 	}
+
+	// Ruta para eliminar una inscripción por usuario y actividad
+	r.DELETE("/inscripciones/:id_usuario/:id_actividad", controllers.EliminarInscripcion)
 }
