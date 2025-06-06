@@ -6,6 +6,7 @@ const MisActividades = () => {
   const [actividades, setActividades] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [detalle, setDetalle] = useState(null);
 
   useEffect(() => {
     const fetchActividades = async () => {
@@ -86,7 +87,7 @@ const MisActividades = () => {
               <p><strong>Categoría:</strong> {actividad.actividad?.categoria || ''}</p>
               <p><strong>Profesor:</strong> {actividad.actividad?.profesor || ''}</p>
               <button 
-                onClick={() => {/* TODO: Implementar vista detallada */}}
+                onClick={() => setDetalle(actividad)}
                 style={{
                   backgroundColor: '#007bff',
                   color: 'white',
@@ -98,6 +99,19 @@ const MisActividades = () => {
               >
                 Ver más
               </button>
+
+              {/* Detalle de la actividad seleccionada */}
+              {detalle && detalle.id_inscripcion === actividad.id_inscripcion && (
+                <div style={{ marginTop: '20px', background: '#222', borderRadius: '8px', padding: '16px' }}>
+                  <h4>Detalle de la Actividad</h4>
+                  <p><strong>Descripción:</strong> {detalle.actividad?.descripcion}</p>
+                  <p><strong>Categoría:</strong> {detalle.actividad?.categoria}</p>
+                  <p><strong>Profesor:</strong> {detalle.actividad?.profesor}</p>
+                  <p><strong>Duración:</strong> {detalle.actividad?.duracion} minutos</p>
+                  <p><strong>Periodicidad:</strong> {detalle.actividad?.periodicidad}</p>
+                  <p><strong>Cupo:</strong> {detalle.actividad?.cupo}</p>
+                </div>
+              )}
             </div>
           ))}
         </div>

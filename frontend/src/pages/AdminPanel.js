@@ -116,7 +116,7 @@ export default function AdminPanel() {
             className="admin-input"
           />
         ))}
-        <button type="submit" className="admin-button">Crear</button>
+        <button type="submit" style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '10px 20px', borderRadius: '6px', fontWeight: 'bold', marginTop: '10px', cursor: 'pointer' }}>Crear</button>
       </form>
 
       {mensaje && <p>{mensaje}</p>}
@@ -127,8 +127,8 @@ export default function AdminPanel() {
           <li key={act.id_actividad} className="admin-actividad-item">
             <strong>{act.descripcion}</strong> — {act.categoria} — Prof: {act.profesor}
             <br />
-            <button onClick={() => editarActividad(act)} className="admin-button-secondary">Editar</button>
-            <button onClick={() => eliminarActividad(act.id_actividad)} className="admin-button-danger">Eliminar</button>
+            <button onClick={() => editarActividad(act)} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', marginRight: '10px', cursor: 'pointer' }}>Editar</button>
+            <button onClick={() => eliminarActividad(act.id_actividad)} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '5px 10px', borderRadius: '4px', cursor: 'pointer' }}>Eliminar</button>
           </li>
         ))}
       </ul>
