@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
 import { jwtDecode } from 'jwt-decode';
-// import './Actividades.css'; // Dejar de usar el CSS viejo
+import './Actividades.css';
 
 function Actividades() {
   const [actividades, setActividades] = useState([]);
@@ -88,66 +88,45 @@ function Actividades() {
   };
 
   return (
-    <div style={{ backgroundColor: 'black', color: 'white', minHeight: '100vh', padding: '20px' }}>
-      <h1>Actividades Disponibles</h1>
-      <div style={{ display: 'grid', gap: '20px' }}>
-        {actividades.map((actividad) => (
-          <div key={actividad.id_actividad} style={{
-            border: '1px solid #333',
-            borderRadius: '8px',
-            padding: '20px',
-            backgroundColor: '#111',
-            marginBottom: '10px'
-          }}>
-            <h3>{actividad.descripcion}</h3>
-            <p><strong>Categoría:</strong> {actividad.categoria}</p>
-            <p><strong>Profesor:</strong> {actividad.profesor}</p>
-            <button
-              onClick={() => mostrarDetalle(actividad)}
-              style={{
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                padding: '8px 16px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                marginTop: '10px'
-              }}
-            >
-              Ver más
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {detalle && (
-        <div style={{
-          marginTop: '30px',
-          background: '#222',
-          borderRadius: '8px',
-          padding: '24px',
-          maxWidth: '500px',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)'
-        }}>
-          <h2 style={{ textAlign: 'center' }}>Detalle de la Actividad</h2>
-          <p><strong>Descripción:</strong> {detalle.descripcion}</p>
-          <p><strong>Profesor:</strong> {detalle.profesor}</p>
-          <p><strong>Categoría:</strong> {detalle.categoria}</p>
-          <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
-          <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
-          <p><strong>Cupo:</strong> {detalle.cupo}</p>
-          {!loadingInscripciones && (
-            estaInscripto(detalle.id_actividad) ? (
-              <button onClick={desinscribirse} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginTop: '10px' }}>Desinscribirme</button>
-            ) : (
-              <button onClick={inscribirse} style={{ backgroundColor: '#007bff', color: 'white', border: 'none', padding: '8px 16px', borderRadius: '4px', cursor: 'pointer', marginTop: '10px' }}>Inscribirme</button>
-            )
-          )}
-          {mensaje && <p style={{ color: mensaje.includes('éxito') || mensaje.includes('correctamente') ? 'lightgreen' : 'red', marginTop: '10px' }}>{mensaje}</p>}
+    <div className="actividades-bg">
+      <div className="actividades-main">
+        <h1>Actividades Disponibles</h1>
+        <div className="actividades-grid">
+          {actividades.map((actividad) => (
+            <div key={actividad.id_actividad} className="actividad-card">
+              <h3>{actividad.descripcion}</h3>
+              <p><strong>Categoría:</strong> {actividad.categoria}</p>
+              <p><strong>Profesor:</strong> {actividad.profesor}</p>
+              <button
+                onClick={() => mostrarDetalle(actividad)}
+                className="actividad-btn"
+              >
+                Ver más
+              </button>
+            </div>
+          ))}
         </div>
-      )}
+
+        {detalle && (
+          <div className="detalle-actividad">
+            <h2>Detalle de la Actividad</h2>
+            <p><strong>Descripción:</strong> {detalle.descripcion}</p>
+            <p><strong>Profesor:</strong> {detalle.profesor}</p>
+            <p><strong>Categoría:</strong> {detalle.categoria}</p>
+            <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
+            <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
+            <p><strong>Cupo:</strong> {detalle.cupo}</p>
+            {!loadingInscripciones && (
+              estaInscripto(detalle.id_actividad) ? (
+                <button onClick={desinscribirse} className="actividad-btn">Desinscribirme</button>
+              ) : (
+                <button onClick={inscribirse} className="actividad-btn">Inscribirme</button>
+              )
+            )}
+            {mensaje && <p className="mensaje" style={{ color: mensaje.includes('éxito') || mensaje.includes('correctamente') ? 'lightgreen' : 'red' }}>{mensaje}</p>}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

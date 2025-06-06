@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../services/axios';
+import './ActividadDetalle.css';
 
 function ActividadDetalle() {
   const { id } = useParams();
@@ -27,7 +28,7 @@ function ActividadDetalle() {
   if (!actividad) return <p>Cargando actividad...</p>;
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div className="actividad-detalle-main">
       <h2>{actividad.descripcion}</h2>
       <p><strong>Profesor:</strong> {actividad.profesor}</p>
       <p><strong>Categoría:</strong> {actividad.categoria}</p>
@@ -36,8 +37,8 @@ function ActividadDetalle() {
       <p><strong>Cupo:</strong> {actividad.cupo}</p>
       <p><strong>Duración:</strong> {actividad.duracion} minutos</p>
 
-      <button onClick={inscribirse}>Inscribirme</button>
-      {mensaje && <p>{mensaje}</p>}
+      <button onClick={inscribirse} className="actividad-detalle-btn">Inscribirme</button>
+      {mensaje && <p className="actividad-detalle-msg">{mensaje}</p>}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from '../services/axios';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import './Login.css';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -23,9 +24,9 @@ export default function Login() {
   };
 
   return (
-    <div>
+    <div className="login-main">
       <h2>Iniciar sesión</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="login-form">
         <input
           type="email"
           placeholder="Correo electrónico"
@@ -41,8 +42,8 @@ export default function Login() {
           required
         />
         <button type="submit">Ingresar</button>
+        {error && <p className="login-error">{error}</p>}
       </form>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
     </div>
   );
 }

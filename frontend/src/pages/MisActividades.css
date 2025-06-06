@@ -1,0 +1,41 @@
+.mis-actividades-bg {
+  background-color: black;
+  color: white;
+  min-height: 100vh;
+}
+
+.mis-actividades-main {
+  padding: 20px;
+}
+
+.mis-actividades-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.mis-actividad-card {
+  border: 1px solid #333;
+  border-radius: 8px;
+  padding: 20px;
+  background-color: #111;
+}
+
+.mis-actividad-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.mis-actividad-btn:hover {
+  background-color: #0056b3;
+}
+
+.mis-detalle-actividad {
+  margin-top: 20px;
+  background: #222;
+  border-radius: 8px;
+  padding: 16px;
+} 

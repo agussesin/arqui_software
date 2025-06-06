@@ -1,0 +1,24 @@
+.actividad-detalle-main {
+  padding: 20px;
+  background-color: #111;
+  color: white;
+  min-height: 100vh;
+}
+
+.actividad-detalle-btn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.actividad-detalle-btn:hover {
+  background-color: #0056b3;
+}
+
+.actividad-detalle-msg {
+  margin-top: 10px;
+} 
