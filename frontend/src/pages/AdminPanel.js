@@ -2,8 +2,20 @@ import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
 import './AdminPanel.css'; // Asegurate de importar el archivo CSS
 
+/**
+ * Componente AdminPanel
+ * 
+ * Panel de administración que permite:
+ * 1. Ver todas las actividades
+ * 2. Crear nuevas actividades
+ * 3. Gestionar actividades existentes
+ * Solo accesible para usuarios con rol Admin
+ */
 export default function AdminPanel() {
+  // Estado para almacenar la lista de actividades
   const [actividades, setActividades] = useState([]);
+  
+  // Estado para el formulario de nueva actividad
   const [form, setForm] = useState({
     descripcion: '',
     categoria: '',
@@ -12,8 +24,11 @@ export default function AdminPanel() {
     periodicidad: '',
     cupo: ''
   });
+  
+  // Estado para mensajes de feedback
   const [mensaje, setMensaje] = useState('');
 
+  // Configuración de headers para peticiones autenticadas
   const token = localStorage.getItem('token');
   const config = {
     headers: {
@@ -22,6 +37,10 @@ export default function AdminPanel() {
     },
   };
 
+  /**
+   * Función para obtener todas las actividades
+   * Se ejecuta al montar el componente y después de crear una nueva actividad
+   */
   const fetchActividades = () => {
     axios
       .get('/actividades')
@@ -29,32 +48,45 @@ export default function AdminPanel() {
       .catch(() => setMensaje('Error al cargar actividades'));
   };
 
+  // Efecto para cargar actividades al montar el componente
   useEffect(() => {
     fetchActividades();
   }, []);
 
+  /**
+   * Maneja los cambios en los campos del formulario
+   * @param {Event} e - Evento del input
+   */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  /**
+   * Maneja la creación de una nueva actividad
+   * @param {Event} e - Evento del formulario
+   */
   const crearActividad = (e) => {
     e.preventDefault();
 
+    // Verifica autenticación
     if (!token) {
       setMensaje('Error: usuario no autenticado');
       return;
     }
 
+    // Prepara los datos de la actividad
     const actividad = {
       ...form,
       duracion: parseInt(form.duracion, 10),
       cupo: parseInt(form.cupo, 10),
     };
 
+    // Envía la petición para crear la actividad
     axios
       .post('/admin/actividades', actividad, config)
       .then(() => {
         setMensaje('Actividad creada correctamente ✅');
+        // Limpia el formulario
         setForm({
           descripcion: '',
           categoria: '',
@@ -63,6 +95,7 @@ export default function AdminPanel() {
           periodicidad: '',
           cupo: '',
         });
+        // Recarga la lista de actividades
         fetchActividades();
       })
       .catch((error) => {
