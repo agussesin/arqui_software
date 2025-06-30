@@ -32,14 +32,51 @@ func InscribirseActividad(c *gin.Context) {
 		return
 	}
 
+	// Verifica si el usuario ya está inscripto en esta actividad
+	var inscripcionExistente models.Inscripcion
+	if err := database.DB.Where("id_usuario = ? AND id_actividad = ?", inscripcion.IdUsuario, inscripcion.IdActividad).First(&inscripcionExistente).Error; err == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya estás inscripto en esta actividad"})
+		return
+	}
+
+	// Cuenta cuántas inscripciones existen para esta actividad
+	var cantidadInscriptos int64
+	if err := database.DB.Model(&models.Inscripcion{}).Where("id_actividad = ?", inscripcion.IdActividad).Count(&cantidadInscriptos).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar cupos disponibles"})
+		return
+	}
+
+	// Calcula los cupos disponibles
+	cuposDisponibles := actividad.Cupo - int(cantidadInscriptos)
+
+	// Verifica si hay cupos disponibles
+	if cuposDisponibles <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Lo sentimos, no hay cupos disponibles para esta actividad",
+			"detalles": gin.H{
+				"cupo_maximo": actividad.Cupo,
+				"inscriptos":  cantidadInscriptos,
+				"disponibles": 0,
+			},
+		})
+		return
+	}
+
 	// Intenta registrar la inscripción en la base de datos
 	if err := database.DB.Create(&inscripcion).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo registrar la inscripción"}) // Error interno
 		return
 	}
 
-	// Devuelve mensaje de éxito
-	c.JSON(http.StatusCreated, gin.H{"mensaje": "Inscripción exitosa"})
+	// Devuelve mensaje de éxito con información detallada
+	c.JSON(http.StatusCreated, gin.H{
+		"mensaje": "Inscripción exitosa",
+		"detalles": gin.H{
+			"cupo_maximo": actividad.Cupo,
+			"inscriptos":  cantidadInscriptos + 1, // +1 porque acabamos de inscribir a alguien
+			"disponibles": cuposDisponibles - 1,   // -1 porque acabamos de inscribir a alguien
+		},
+	})
 }
 
 // Función para listar las actividades en las que está inscripto un socio

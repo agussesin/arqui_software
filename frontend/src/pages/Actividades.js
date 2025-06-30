@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
 import { jwtDecode } from 'jwt-decode';
+import ActividadCardVisual from '../components/ActividadCardVisual';
 import './Actividades.css';
 
 function Actividades() {
@@ -26,21 +27,15 @@ function Actividades() {
 
   useEffect(() => {
     axios.get('/actividades')
-      .then((response) => {
-        setActividades(response.data);
-      })
-      .catch((error) => {
-        console.error('Error al obtener las actividades:', error);
-      });
+      .then((response) => setActividades(response.data))
+      .catch((error) => console.error('Error al obtener las actividades:', error));
   }, []);
 
   useEffect(() => {
     if (!id_usuario) return;
     setLoadingInscripciones(true);
     axios.get(`/mis-actividades/${id_usuario}`)
-      .then((response) => {
-        setInscripciones(response.data);
-      })
+      .then((response) => setInscripciones(response.data))
       .catch((error) => {
         setInscripciones([]);
         console.error('Error al obtener inscripciones:', error);
@@ -48,16 +43,9 @@ function Actividades() {
       .finally(() => setLoadingInscripciones(false));
   }, [id_usuario]);
 
-  const mostrarDetalle = (actividad) => {
-    setDetalle(actividad);
-    setMensaje('');
-  };
-
   const estaInscripto = (id_actividad) => {
     if (!Array.isArray(inscripciones)) return false;
-    return inscripciones.some(
-      (insc) => insc.id_actividad === id_actividad
-    );
+    return inscripciones.some(insc => insc.id_actividad === id_actividad);
   };
 
   const inscribirse = async () => {
@@ -91,21 +79,14 @@ function Actividades() {
     <div className="actividades-bg">
       <div className="actividades-main">
         <h1>Actividades Disponibles</h1>
-        <div className="actividades-grid">
-          {actividades.map((actividad) => (
-            <div key={actividad.id_actividad} className="actividad-card">
-              <h3>{actividad.descripcion}</h3>
-              <p><strong>Categoría:</strong> {actividad.categoria}</p>
-              <p><strong>Profesor:</strong> {actividad.profesor}</p>
-              <button
-                onClick={() => mostrarDetalle(actividad)}
-                className="actividad-btn"
-              >
-                Ver más
-              </button>
-            </div>
-          ))}
-        </div>
+
+        {actividades.map((actividad) => (
+          <ActividadCardVisual
+            key={actividad.id_actividad}
+            actividad={actividad}
+            onVerDetalle={setDetalle}
+          />
+        ))}
 
         {detalle && (
           <div className="detalle-actividad">
@@ -123,7 +104,11 @@ function Actividades() {
                 <button onClick={inscribirse} className="actividad-btn">Inscribirme</button>
               )
             )}
-            {mensaje && <p className="mensaje" style={{ color: mensaje.includes('éxito') || mensaje.includes('correctamente') ? 'lightgreen' : 'red' }}>{mensaje}</p>}
+            {mensaje && (
+              <p className="mensaje" style={{
+                color: mensaje.includes('éxito') || mensaje.includes('correctamente') ? 'lightgreen' : 'red'
+              }}>{mensaje}</p>
+            )}
           </div>
         )}
       </div>

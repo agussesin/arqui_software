@@ -19,7 +19,7 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
-  
+
   // Hook para navegación programática
   const navigate = useNavigate();
 
@@ -33,10 +33,10 @@ export default function Login() {
       // Realiza la petición de login
       const response = await axios.post('/login', { email, password });
       const token = response.data.token;
-      
+
       // Almacena el token en localStorage
       localStorage.setItem('token', token);
-      
+
       // Redirige al usuario a la página principal
       navigate('/');
     } catch (err) {

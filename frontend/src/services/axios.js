@@ -9,7 +9,7 @@ import axios from 'axios';
  */
 const api = axios.create({
   // URL base para todas las peticiones
-  baseURL: 'http://localhost:8080',
+  baseURL: 'http://localhost:8000',
 });
 
 /**

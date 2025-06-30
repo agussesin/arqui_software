@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/axios';
 import { jwtDecode } from 'jwt-decode';
+import ActividadCardVisual from '../components/ActividadCardVisual';
 import './MisActividades.css';
 
 const MisActividades = () => {
@@ -20,7 +21,7 @@ const MisActividades = () => {
         }
 
         const decoded = jwtDecode(token);
-        const userId = decoded.user_id;
+        const userId = decoded.user_id || decoded.id_usuario;
 
         const response = await api.get(`/mis-actividades/${userId}`);
         setActividades(response.data);
@@ -55,39 +56,30 @@ const MisActividades = () => {
     <div className="mis-actividades-bg">
       <div className="mis-actividades-main">
         <h1>Mis Actividades</h1>
+
         {Array.isArray(actividades) && actividades.length === 0 ? (
           <p>No estás inscripto en ninguna actividad todavía</p>
         ) : (
-          <div className="mis-actividades-grid">
-            {Array.isArray(actividades) && actividades.map((actividad) => (
-              <div 
-                key={actividad.id_inscripcion}
-                className="mis-actividad-card"
-              >
-                <h3>{actividad.actividad?.descripcion || ''}</h3>
-                <p><strong>Categoría:</strong> {actividad.actividad?.categoria || ''}</p>
-                <p><strong>Profesor:</strong> {actividad.actividad?.profesor || ''}</p>
-                <button 
-                  onClick={() => setDetalle(actividad)}
-                  className="mis-actividad-btn"
-                >
-                  Ver más
-                </button>
-
-                {/* Detalle de la actividad seleccionada */}
-                {detalle && detalle.id_inscripcion === actividad.id_inscripcion && (
-                  <div className="mis-detalle-actividad">
-                    <h4>Detalle de la Actividad</h4>
-                    <p><strong>Descripción:</strong> {detalle.actividad?.descripcion}</p>
-                    <p><strong>Categoría:</strong> {detalle.actividad?.categoria}</p>
-                    <p><strong>Profesor:</strong> {detalle.actividad?.profesor}</p>
-                    <p><strong>Duración:</strong> {detalle.actividad?.duracion} minutos</p>
-                    <p><strong>Periodicidad:</strong> {detalle.actividad?.periodicidad}</p>
-                    <p><strong>Cupo:</strong> {detalle.actividad?.cupo}</p>
-                  </div>
-                )}
-              </div>
+          <>
+            {actividades.map((inscripcion) => (
+              <ActividadCardVisual
+                key={inscripcion.id_inscripcion}
+                actividad={inscripcion.actividad}
+                onVerDetalle={() => setDetalle(inscripcion.actividad)}
+              />
             ))}
+          </>
+        )}
+
+        {detalle && (
+          <div className="mis-detalle-actividad">
+            <h4>Detalle de la Actividad</h4>
+            <p><strong>Descripción:</strong> {detalle.descripcion}</p>
+            <p><strong>Categoría:</strong> {detalle.categoria}</p>
+            <p><strong>Profesor:</strong> {detalle.profesor}</p>
+            <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
+            <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
+            <p><strong>Cupo:</strong> {detalle.cupo}</p>
           </div>
         )}
       </div>
@@ -96,4 +88,3 @@ const MisActividades = () => {
 };
 
 export default MisActividades;
-  

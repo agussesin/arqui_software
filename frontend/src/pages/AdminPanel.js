@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../services/axios';
 import './AdminPanel.css'; // Asegurate de importar el archivo CSS
+import EditarActividadModal from '../components/EditarActividadModal';
 
 /**
  * Componente AdminPanel
@@ -14,7 +15,7 @@ import './AdminPanel.css'; // Asegurate de importar el archivo CSS
 export default function AdminPanel() {
   // Estado para almacenar la lista de actividades
   const [actividades, setActividades] = useState([]);
-  
+
   // Estado para el formulario de nueva actividad
   const [form, setForm] = useState({
     descripcion: '',
@@ -24,7 +25,7 @@ export default function AdminPanel() {
     periodicidad: '',
     cupo: ''
   });
-  
+
   // Estado para mensajes de feedback
   const [mensaje, setMensaje] = useState('');
 
@@ -36,6 +37,9 @@ export default function AdminPanel() {
       'Content-Type': 'application/json',
     },
   };
+
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [actividadSeleccionada, setActividadSeleccionada] = useState(null);
 
   /**
    * Función para obtener todas las actividades
@@ -120,16 +124,28 @@ export default function AdminPanel() {
   };
 
   const editarActividad = (act) => {
-    const nuevosValores = prompt(`Editar descripción de "${act.descripcion}":`, act.descripcion);
-    if (nuevosValores && token) {
-      axios
-        .put(`/admin/actividades/${act.id_actividad}`, { ...act, descripcion: nuevosValores }, config)
-        .then(() => {
-          setMensaje('Actividad actualizada ✅');
-          fetchActividades();
-        })
-        .catch(() => setMensaje('Error al editar ❌'));
+    setActividadSeleccionada(act);
+    setModalAbierto(true);
+  };
+
+  const handleGuardarEdicion = (nuevosDatos) => {
+    if (!token) {
+      setMensaje('Error: usuario no autenticado');
+      return;
     }
+    axios
+      .put(`/admin/actividades/${nuevosDatos.id_actividad}`, {
+        ...nuevosDatos,
+        duracion: parseInt(nuevosDatos.duracion, 10),
+        cupo: parseInt(nuevosDatos.cupo, 10),
+      }, config)
+      .then(() => {
+        setMensaje('Actividad actualizada ✅');
+        setModalAbierto(false);
+        setActividadSeleccionada(null);
+        fetchActividades();
+      })
+      .catch(() => setMensaje('Error al editar ❌'));
   };
 
   return (
@@ -165,6 +181,12 @@ export default function AdminPanel() {
           </li>
         ))}
       </ul>
+      <EditarActividadModal
+        isOpen={modalAbierto}
+        onClose={() => { setModalAbierto(false); setActividadSeleccionada(null); }}
+        actividad={actividadSeleccionada}
+        onSave={handleGuardarEdicion}
+      />
     </div>
   );
 }

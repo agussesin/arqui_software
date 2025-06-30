@@ -12,14 +12,15 @@ import './Navbar.css';
 export default function Navbar() {
   // Hook para navegación programática (redirecciones)
   const navigate = useNavigate();
-  
+
   // Obtiene el token JWT del localStorage
   // El token se usa para mantener la sesión del usuario
   const token = localStorage.getItem('token');
 
   /**
+   * token tiene 3 partes: encabezado (tipo), carga util/payload (datos reales) y la firma (clave secreta)
    * Función para extraer el rol del usuario del token JWT
-   * Decodifica el payload del token y extrae el rol
+   * Decodifica el payload (carga util) del token y extrae el rol
    * @returns {string|null} El rol del usuario o null si no hay token
    */
   const getRoleFromToken = () => {
@@ -60,12 +61,12 @@ export default function Navbar() {
             {/* Enlaces a secciones principales */}
             <Link to="/actividades" className="btn">Actividades</Link>
             <Link to="/mis-actividades" className="btn">Mis actividades</Link>
-            
+
             {/* Renderizado condicional: muestra panel admin solo si el rol es Admin */}
             {role === 'Admin' && (
               <Link to="/admin" className="btn">Panel Admin</Link>
             )}
-            
+
             {/* Botón de cerrar sesión */}
             <button onClick={handleLogout} className="btn" style={{ background: 'transparent', border: 'none' }}>
               Cerrar sesión
