@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import axios from '../services/axios';
+import BotonInscripcion from './BotonInscripcion';
 import './ActividadCardVisual.css';
 
-const ActividadCardVisual = ({ actividad, id_usuario, usuarioYaInscripto }) => {
+const ActividadCardVisual = ({ actividad, id_usuario, usuarioYaInscripto, showInscripcionButton = true }) => {
     const [expandida, setExpandida] = useState(false);
     const [inscripto, setInscripto] = useState(usuarioYaInscripto);
-    const [inscriptos, setInscriptos] = useState(actividad.inscriptos || 0);
-    const [loading, setLoading] = useState(false);
-    const [mensaje, setMensaje] = useState('');
-    const cupoMaximo = actividad.cupoMaximo || actividad.cupo;
-    const cuposRestantes = cupoMaximo - inscriptos;
+    const [cuposDisponibles, setCuposDisponibles] = useState(
+        actividad.cupos_disponibles !== undefined ? actividad.cupos_disponibles : 
+        (actividad.cupo - (actividad.inscriptos || 0))
+    );
 
     const nombre = actividad.descripcion?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const imagenPorActividad = {
@@ -27,50 +26,11 @@ const ActividadCardVisual = ({ actividad, id_usuario, usuarioYaInscripto }) => {
     };
     const imagen = imagenPorActividad[nombre] || '/images/default.jpg';
 
-    // INSCRIBIRSE
-    const handleInscribirse = async (e) => {
-        e.stopPropagation();
-        setLoading(true);
-        setMensaje('');
-        try {
-            const res = await axios.post('/inscripciones', {
-                id_usuario,
-                id_actividad: actividad.id_actividad || actividad.id
-            });
-            setInscripto(true);
-            setInscriptos(prev => prev + 1);
-            setMensaje(res.data.mensaje || '¡Inscripción exitosa!');
-        } catch (err) {
-            if (err.response?.data?.error) {
-                setMensaje(err.response.data.error);
-            } else {
-                setMensaje('No se pudo inscribir.');
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // DESINSCRIBIRSE
-    const handleDesinscribirse = async (e) => {
-        e.stopPropagation();
-        setLoading(true);
-        setMensaje('');
-        try {
-            const res = await axios.delete(`/inscripciones/${id_usuario}/${actividad.id_actividad || actividad.id}`);
-            setInscripto(false);
-            setInscriptos(prev => prev - 1);
-            setMensaje(res.data.mensaje || 'Te desinscribiste correctamente.');
-        } catch (err) {
-            if (err.response?.data?.mensaje) {
-                setMensaje(err.response.data.mensaje);
-            } else if (err.response?.data?.error) {
-                setMensaje(err.response.data.error);
-            } else {
-                setMensaje('No se pudo desinscribir.');
-            }
-        } finally {
-            setLoading(false);
+    // Callback para manejar cambios en la inscripción
+    const handleCambioInscripcion = (nuevoEstadoInscripto, nuevosCuposDisponibles) => {
+        setInscripto(nuevoEstadoInscripto);
+        if (nuevosCuposDisponibles !== undefined) {
+            setCuposDisponibles(nuevosCuposDisponibles);
         }
     };
 
@@ -135,25 +95,38 @@ const ActividadCardVisual = ({ actividad, id_usuario, usuarioYaInscripto }) => {
                         <p><strong>Categoría:</strong> {actividad.categoria}</p>
                         <p><strong>Duración:</strong> {actividad.duracion} minutos</p>
                         <p><strong>Periodicidad:</strong> {actividad.periodicidad}</p>
-                        <p><strong>Cupo disponible:</strong> {cuposRestantes} / {cupoMaximo}</p>
-                        {!inscripto ? (
-                            <button
-                                className={`actividad-btn-inscribirse${cuposRestantes <= 0 ? ' disabled' : ''}`}
-                                onClick={handleInscribirse}
-                                disabled={cuposRestantes <= 0 || loading}
-                            >
-                                {cuposRestantes <= 0 ? 'Cupo completo' : loading ? 'Procesando...' : 'Inscribirme'}
-                            </button>
-                        ) : (
-                            <button
-                                className="actividad-btn-desinscribirse"
-                                onClick={handleDesinscribirse}
-                                disabled={loading}
-                            >
-                                {loading ? 'Procesando...' : 'Desinscribirme'}
-                            </button>
+                        
+                        {/* Mostrar botón de inscripción solo si showInscripcionButton es true */}
+                        {showInscripcionButton && (
+                            <BotonInscripcion
+                                actividad={{
+                                    ...actividad,
+                                    cupos_disponibles: cuposDisponibles
+                                }}
+                                inscripto={inscripto}
+                                onCambioInscripcion={handleCambioInscripcion}
+                            />
                         )}
-                        {mensaje && <div className={`actividad-card-msg${mensaje.includes('éxito') || mensaje.includes('correctamente') ? ' success' : ' error'}`}>{mensaje}</div>}
+                        
+                        {/* Si no se muestra el botón, mostrar mensaje informativo */}
+                        {!showInscripcionButton && (
+                            <div style={{
+                                background: 'rgba(40, 167, 69, 0.1)',
+                                border: '1px solid #28a745',
+                                borderRadius: '8px',
+                                padding: '12px',
+                                marginTop: '16px',
+                                textAlign: 'center'
+                            }}>
+                                <p style={{ 
+                                    color: '#28a745', 
+                                    margin: 0, 
+                                    fontWeight: '600' 
+                                }}>
+                                    ✅ Estás inscripto en esta actividad
+                                </p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

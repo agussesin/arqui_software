@@ -97,6 +97,7 @@ function Actividades() {
             actividad={actividad}
             id_usuario={id_usuario}
             usuarioYaInscripto={estaInscripto(actividad.id_actividad)}
+            showInscripcionButton={true}
           />
         ))}
       </div>

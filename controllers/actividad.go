@@ -9,14 +9,36 @@ import (
 	"github.com/gin-gonic/gin" // Framework web para manejar rutas, respuestas, etc.
 )
 
-// ListarActividades devuelve todas las actividades disponibles
+// Estructura para respuesta con información de cupos
+type ActividadConCupos struct {
+	models.Actividad
+	CuposDisponibles int `json:"cupos_disponibles"`
+	Inscriptos       int `json:"inscriptos"`
+}
+
+// ListarActividades devuelve todas las actividades disponibles con información de cupos
 func ListarActividades(c *gin.Context) {
 	var actividades []models.Actividad // Declara una slice vacía de actividades
 	database.DB.Find(&actividades)     // Busca todas las actividades en la base de datos
-	c.JSON(http.StatusOK, actividades) // Devuelve las actividades como JSON con código 200
+
+	// Crear respuesta con información de cupos
+	var actividadesConCupos []ActividadConCupos
+	for _, actividad := range actividades {
+		// Contar inscripciones para esta actividad
+		var cantidadInscriptos int64
+		database.DB.Model(&models.Inscripcion{}).Where("id_actividad = ?", actividad.IdActividad).Count(&cantidadInscriptos)
+
+		actividadesConCupos = append(actividadesConCupos, ActividadConCupos{
+			Actividad:        actividad,
+			CuposDisponibles: actividad.Cupo - int(cantidadInscriptos),
+			Inscriptos:       int(cantidadInscriptos),
+		})
+	}
+
+	c.JSON(http.StatusOK, actividadesConCupos) // Devuelve las actividades como JSON con código 200
 }
 
-// ObtenerActividadPorID busca una actividad por su ID
+// ObtenerActividadPorID busca una actividad por su ID con información de cupos
 func ObtenerActividadPorID(c *gin.Context) {
 	id := c.Param("id")            // Obtiene el ID de la URL
 	var actividad models.Actividad // Crea una variable para guardar la actividad
@@ -25,7 +47,18 @@ func ObtenerActividadPorID(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"}) // Si no la encuentra, responde 404
 		return
 	}
-	c.JSON(http.StatusOK, actividad) // Si la encuentra, la devuelve como JSON
+
+	// Contar inscripciones para esta actividad
+	var cantidadInscriptos int64
+	database.DB.Model(&models.Inscripcion{}).Where("id_actividad = ?", actividad.IdActividad).Count(&cantidadInscriptos)
+
+	actividadConCupos := ActividadConCupos{
+		Actividad:        actividad,
+		CuposDisponibles: actividad.Cupo - int(cantidadInscriptos),
+		Inscriptos:       int(cantidadInscriptos),
+	}
+
+	c.JSON(http.StatusOK, actividadConCupos) // Si la encuentra, la devuelve como JSON
 }
 
 // CrearActividad recibe los datos de una nueva actividad y la guarda
@@ -35,8 +68,16 @@ func CrearActividad(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()}) // Si hay error en los datos, responde 400
 		return
 	}
-	database.DB.Create(&actividad)   // Guarda la nueva actividad en la base de datos
-	c.JSON(http.StatusOK, actividad) // Devuelve la actividad recién creada
+	database.DB.Create(&actividad) // Guarda la nueva actividad en la base de datos
+
+	// Crear respuesta con información de cupos (0 inscriptos para actividad nueva)
+	actividadConCupos := ActividadConCupos{
+		Actividad:        actividad,
+		CuposDisponibles: actividad.Cupo,
+		Inscriptos:       0,
+	}
+
+	c.JSON(http.StatusOK, actividadConCupos) // Devuelve la actividad recién creada
 }
 
 // EditarActividad actualiza una actividad existente por su ID
@@ -54,8 +95,19 @@ func EditarActividad(c *gin.Context) {
 		return
 	}
 
-	database.DB.Save(&actividad)     // Guarda los cambios en la base
-	c.JSON(http.StatusOK, actividad) // Devuelve la actividad actualizada
+	database.DB.Save(&actividad) // Guarda los cambios en la base
+
+	// Contar inscripciones para esta actividad
+	var cantidadInscriptos int64
+	database.DB.Model(&models.Inscripcion{}).Where("id_actividad = ?", actividad.IdActividad).Count(&cantidadInscriptos)
+
+	actividadConCupos := ActividadConCupos{
+		Actividad:        actividad,
+		CuposDisponibles: actividad.Cupo - int(cantidadInscriptos),
+		Inscriptos:       int(cantidadInscriptos),
+	}
+
+	c.JSON(http.StatusOK, actividadConCupos) // Devuelve la actividad actualizada
 }
 
 // EliminarActividad borra una actividad existente por su ID

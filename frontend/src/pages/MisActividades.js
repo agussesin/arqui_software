@@ -8,7 +8,6 @@ const MisActividades = () => {
   const [actividades, setActividades] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [detalle, setDetalle] = useState(null);
 
   useEffect(() => {
     const fetchActividades = async () => {
@@ -65,22 +64,10 @@ const MisActividades = () => {
               <ActividadCardVisual
                 key={inscripcion.id_inscripcion}
                 actividad={inscripcion.actividad}
-                onVerDetalle={() => setDetalle(inscripcion.actividad)}
+                showInscripcionButton={false}
               />
             ))}
           </>
-        )}
-
-        {detalle && (
-          <div className="mis-detalle-actividad">
-            <h4>Detalle de la Actividad</h4>
-            <p><strong>Descripción:</strong> {detalle.descripcion}</p>
-            <p><strong>Categoría:</strong> {detalle.categoria}</p>
-            <p><strong>Profesor:</strong> {detalle.profesor}</p>
-            <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
-            <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
-            <p><strong>Cupo:</strong> {detalle.cupo}</p>
-          </div>
         )}
       </div>
     </div>

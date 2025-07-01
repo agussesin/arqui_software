@@ -41,5 +41,5 @@ export const inscribirUsuarioEnActividad = (id_usuario, id_actividad) =>
   api.post('/inscripciones', { id_usuario, id_actividad });
 
 export const desinscribirUsuarioDeActividad = (id_usuario, id_actividad) =>
-  api.delete('/inscripciones', { data: { id_usuario, id_actividad } });
+  api.delete(`/inscripciones/${id_usuario}/${id_actividad}`);
 

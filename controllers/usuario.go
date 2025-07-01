@@ -62,7 +62,11 @@ func Login(c *gin.Context) {
 	}
 
 	// Devuelve el token JWT al cliente
-	c.JSON(http.StatusOK, gin.H{"token": tokenString})
+	c.JSON(http.StatusOK, gin.H{
+		"token":   tokenString,
+		"user_id": user.IdUsuario,
+		"role":    user.Rol,
+	})
 }
 
 // Función que crea un nuevo usuario

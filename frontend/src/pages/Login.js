@@ -32,10 +32,12 @@ export default function Login() {
     try {
       // Realiza la petición de login
       const response = await axios.post('/login', { email, password });
-      const token = response.data.token;
+      const { token, user_id, role } = response.data;
 
-      // Almacena el token en localStorage
+      // Almacena el token y user_id en localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('id_usuario', user_id);
+      localStorage.setItem('role', role);
 
       // Redirige al usuario a la página principal
       navigate('/');

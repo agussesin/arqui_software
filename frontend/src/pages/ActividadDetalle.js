@@ -54,15 +54,14 @@ function ActividadDetalle() {
           <p><strong>Duración:</strong> {actividad.duracion} minutos</p>
 
           <BotonInscripcion
-            actividad={{
-              id: actividad.id || actividad.id_actividad,
-              cupoMaximo: actividad.cupo,
-              inscriptos: actividad.inscriptos || actividad.cantidad_inscriptos || 0
-            }}
+            actividad={actividad}
             inscripto={inscripto}
-            onCambioInscripcion={(nuevoEstado, nuevosInscriptos) => {
+            onCambioInscripcion={(nuevoEstado, nuevosCuposDisponibles) => {
               setInscripto(nuevoEstado);
-              setActividad((prev) => ({ ...prev, inscriptos: nuevosInscriptos }));
+              setActividad((prev) => ({ 
+                ...prev, 
+                cupos_disponibles: nuevosCuposDisponibles 
+              }));
               setMensaje(nuevoEstado ? 'Inscripción exitosa ✅' : 'Desinscripción exitosa ✅');
             }}
           />

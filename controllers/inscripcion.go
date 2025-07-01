@@ -18,30 +18,42 @@ func InscribirseActividad(c *gin.Context) {
 		return
 	}
 
+	// Inicia una transacción para asegurar consistencia de datos
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	// Verifica que exista el usuario en la base de datos
 	var usuario models.Usuario
-	if err := database.DB.First(&usuario, inscripcion.IdUsuario).Error; err != nil {
+	if err := tx.First(&usuario, inscripcion.IdUsuario).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusNotFound, gin.H{"error": "Usuario no encontrado"}) // Devuelve 404 si no existe
 		return
 	}
 
 	// Verifica que exista la actividad en la base de datos
 	var actividad models.Actividad
-	if err := database.DB.First(&actividad, inscripcion.IdActividad).Error; err != nil {
+	if err := tx.First(&actividad, inscripcion.IdActividad).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusNotFound, gin.H{"error": "Actividad no encontrada"}) // Devuelve 404 si no existe
 		return
 	}
 
 	// Verifica si el usuario ya está inscripto en esta actividad
 	var inscripcionExistente models.Inscripcion
-	if err := database.DB.Where("id_usuario = ? AND id_actividad = ?", inscripcion.IdUsuario, inscripcion.IdActividad).First(&inscripcionExistente).Error; err == nil {
+	if err := tx.Where("id_usuario = ? AND id_actividad = ?", inscripcion.IdUsuario, inscripcion.IdActividad).First(&inscripcionExistente).Error; err == nil {
+		tx.Rollback()
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Ya estás inscripto en esta actividad"})
 		return
 	}
 
 	// Cuenta cuántas inscripciones existen para esta actividad
 	var cantidadInscriptos int64
-	if err := database.DB.Model(&models.Inscripcion{}).Where("id_actividad = ?", inscripcion.IdActividad).Count(&cantidadInscriptos).Error; err != nil {
+	if err := tx.Model(&models.Inscripcion{}).Where("id_actividad = ?", inscripcion.IdActividad).Count(&cantidadInscriptos).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al verificar cupos disponibles"})
 		return
 	}
@@ -51,6 +63,7 @@ func InscribirseActividad(c *gin.Context) {
 
 	// Verifica si hay cupos disponibles
 	if cuposDisponibles <= 0 {
+		tx.Rollback()
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Lo sentimos, no hay cupos disponibles para esta actividad",
 			"detalles": gin.H{
@@ -63,8 +76,15 @@ func InscribirseActividad(c *gin.Context) {
 	}
 
 	// Intenta registrar la inscripción en la base de datos
-	if err := database.DB.Create(&inscripcion).Error; err != nil {
+	if err := tx.Create(&inscripcion).Error; err != nil {
+		tx.Rollback()
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "No se pudo registrar la inscripción"}) // Error interno
+		return
+	}
+
+	// Confirma la transacción
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error al confirmar la inscripción"})
 		return
 	}
 
@@ -120,16 +140,55 @@ func EliminarInscripcion(c *gin.Context) {
 	idUsuario := c.Param("id_usuario")
 	idActividad := c.Param("id_actividad")
 
+	// Inicia una transacción para asegurar consistencia de datos
+	tx := database.DB.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	var inscripcion models.Inscripcion
-	if err := database.DB.Where("id_usuario = ? AND id_actividad = ?", idUsuario, idActividad).First(&inscripcion).Error; err != nil {
+	if err := tx.Where("id_usuario = ? AND id_actividad = ?", idUsuario, idActividad).First(&inscripcion).Error; err != nil {
+		tx.Rollback()
 		c.JSON(200, gin.H{"mensaje": "No estás inscripto en esta actividad"})
 		return
 	}
 
-	if err := database.DB.Delete(&inscripcion).Error; err != nil {
+	// Obtiene información de la actividad para devolver cupos actualizados
+	var actividad models.Actividad
+	if err := tx.First(&actividad, idActividad).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Error al obtener información de la actividad"})
+		return
+	}
+
+	// Cuenta inscripciones actuales
+	var cantidadInscriptos int64
+	if err := tx.Model(&models.Inscripcion{}).Where("id_actividad = ?", idActividad).Count(&cantidadInscriptos).Error; err != nil {
+		tx.Rollback()
+		c.JSON(500, gin.H{"error": "Error al contar inscripciones"})
+		return
+	}
+
+	if err := tx.Delete(&inscripcion).Error; err != nil {
+		tx.Rollback()
 		c.JSON(500, gin.H{"error": "No se pudo eliminar la inscripción"})
 		return
 	}
 
-	c.JSON(200, gin.H{"mensaje": "Inscripción eliminada correctamente"})
+	// Confirma la transacción
+	if err := tx.Commit().Error; err != nil {
+		c.JSON(500, gin.H{"error": "Error al confirmar la eliminación"})
+		return
+	}
+
+	c.JSON(200, gin.H{
+		"mensaje": "Inscripción eliminada correctamente",
+		"detalles": gin.H{
+			"cupo_maximo": actividad.Cupo,
+			"inscriptos":  cantidadInscriptos - 1,                     // -1 porque acabamos de desinscribir a alguien
+			"disponibles": actividad.Cupo - int(cantidadInscriptos-1), // +1 cupo disponible
+		},
+	})
 }
