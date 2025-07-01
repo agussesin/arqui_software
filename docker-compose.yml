@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  # Base de datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: arqui_software_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: JACQUESbermanWebster2_
+      MYSQL_DATABASE: actividades
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - arqui_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pJACQUESbermanWebster2_" ]
+      timeout: 20s
+      retries: 10
+
+  # Backend en Go
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arqui_software_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_USER=root
+      - DB_PASSWORD=JACQUESbermanWebster2_
+      - DB_NAME=actividades
+      - JWT_SECRET=loquesea
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - arqui_network
+    volumes:
+      - ./.env:/root/.env
+
+  # Frontend en React
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: arqui_software_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - arqui_network
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+
+# Volúmenes
+volumes:
+  mysql_data:
+
+    # Redes
+networks:
+  arqui_network:
+    driver: bridge

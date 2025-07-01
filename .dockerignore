@@ -1,0 +1,30 @@
+# Archivos de Git
+.git
+.gitignore
+
+# Archivos de Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Archivos de desarrollo
+*.exe
+*.log
+.DS_Store
+
+# Frontend (se construye por separado)
+frontend/
+
+# Archivos temporales
+tmp/
+temp/
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de configuración local
+.env
+.env.local 
