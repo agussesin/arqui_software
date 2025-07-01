@@ -10,21 +10,32 @@ const ActividadCardVisual = ({ actividad, id_usuario, usuarioYaInscripto, showIn
         (actividad.cupo - (actividad.inscriptos || 0))
     );
 
-    const nombre = actividad.descripcion?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-    const imagenPorActividad = {
-        'spinning': '/images/ride.jpg',
-        'megacross': '/images/megacross.jpg',
-        'zumba': '/images/zumba.jpg',
-        'boxeo': '/images/boxeo.jpg',
-        'calistenia': '/images/calistenia.jpg',
-        'gap': '/images/gap.jpg',
-        'pilates': '/images/pilates.jpg',
-        'aerocombat': '/images/aerocombat.jpg',
-        'basquet': '/images/basquet.jpg',
-        'yoga': '/images/yoga.jpg',
-        'cross': '/images/cross.jpg',
+    // Usar la imagen dinámica desde la base de datos o fallback al sistema anterior
+    const obtenerImagenActividad = () => {
+        // Si la actividad tiene una imagen específica, usarla
+        if (actividad.imagen) {
+            return `/${actividad.imagen}`;
+        }
+
+        // Fallback al sistema anterior basado en la descripción
+        const nombre = actividad.descripcion?.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        const imagenPorActividad = {
+            'spinning': '/images/ride.jpg',
+            'megacross': '/images/megacross.jpg',
+            'zumba': '/images/zumba.jpg',
+            'boxeo': '/images/boxeo.jpg',
+            'calistenia': '/images/calistenia.jpg',
+            'gap': '/images/gap.jpg',
+            'pilates': '/images/pilates.jpg',
+            'aerocombat': '/images/aerocombat.jpg',
+            'basquet': '/images/basquet.jpg',
+            'yoga': '/images/yoga.jpg',
+            'cross': '/images/cross.jpg',
+        };
+        return imagenPorActividad[nombre] || '/images/cross.jpg';
     };
-    const imagen = imagenPorActividad[nombre] || '/images/default.jpg';
+
+    const imagen = obtenerImagenActividad();
 
     // Callback para manejar cambios en la inscripción
     const handleCambioInscripcion = (nuevoEstadoInscripto, nuevosCuposDisponibles) => {

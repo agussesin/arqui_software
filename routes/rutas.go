@@ -55,8 +55,11 @@ func ConfigurarRutas(r *gin.Engine) {
 	// Aplica el middleware que valida JWT y rol de administrador
 	admin.Use(middleware.ValidarTokenYEsAdmin())
 	{
-		// Crear una nueva actividad
+		// Crear una nueva actividad (sin imagen)
 		admin.POST("/actividades", controllers.CrearActividad)
+
+		// Crear una nueva actividad con imagen
+		admin.POST("/actividades-con-imagen", controllers.CrearActividadConImagen)
 
 		// Editar una actividad existente por ID
 		admin.PUT("/actividades/:id", controllers.EditarActividad)

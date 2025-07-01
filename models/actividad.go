@@ -9,5 +9,6 @@ type Actividad struct {
 	Duracion      int           `json:"duracion"`                       // Duración en minutos (o la unidad que uses)
 	Categoria     string        `json:"categoria"`                      // Por ejemplo: "Cardio", "Fuerza", etc.
 	Profesor      string        `json:"profesor"`                       // Nombre del profesor a cargo
+	Imagen        string        `json:"imagen"`                         // Ruta de la imagen de la actividad (ej: "images/spinning.jpg")
 	Inscripciones []Inscripcion `gorm:"foreignKey:IdActividad"`         // Una actividad puede tener muchas inscripciones
 }
