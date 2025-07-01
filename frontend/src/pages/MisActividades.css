@@ -327,4 +327,63 @@
   .info-item span {
     text-align: left;
   }
+}
+
+/* Estilos para cuando no hay actividades */
+.no-activities {
+  text-align: center;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  border-radius: 16px;
+  margin: 40px auto;
+  max-width: 500px;
+  border: 1px solid #333;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.no-activities h3 {
+  margin: 0 0 16px 0;
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.no-activities p {
+  margin: 0 0 32px 0;
+  color: #ccc;
+  font-size: 1.1rem;
+  line-height: 1.5;
+}
+
+.no-activities .cta-btn {
+  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  color: white;
+  padding: 12px 24px;
+  border: none;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 8px;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.no-activities .cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+
+@media (max-width: 768px) {
+  .no-activities {
+    margin: 20px;
+    padding: 40px 20px;
+  }
+  
+  .no-activities h3 {
+    font-size: 1.3rem;
+  }
+  
+  .no-activities p {
+    font-size: 1rem;
+  }
 } 

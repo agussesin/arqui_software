@@ -33,8 +33,11 @@ export default function Home() {
         <div className="hero">
           <h1>THE GYM SALE UPGRADED</h1>
           <p className="descripcion">Tu primer mes es gratis. Cupos limitados.</p>
-          {/* Botón de llamada a la acción que lleva a la sección de planes */}
-          <a href="#planes" className="cta-btn">Ver planes</a>
+          {/* Botones de llamada a la acción */}
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href="/signup" className="cta-btn">Crear cuenta</a>
+            <a href="#planes" className="cta-btn cta-btn-secondary">Ver planes</a>
+          </div>
         </div>
       </div>
 
@@ -43,9 +46,12 @@ export default function Home() {
         <PricingSection />
       </div>
 
-      {/* Botón de llamada a la acción final */}
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <a href="/login" className="cta-btn">Unite ahora</a>
+      {/* Botones de llamada a la acción */}
+      <div style={{ textAlign: 'center', marginTop: '2rem', marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <a href="/signup" className="cta-btn">Crear cuenta</a>
+          <a href="/login" className="cta-btn cta-btn-secondary">Unite ahora</a>
+        </div>
       </div>
     </div>
   );

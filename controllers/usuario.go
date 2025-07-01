@@ -79,6 +79,18 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
+	// Verifica si el email ya existe
+	var existingUser models.Usuario
+	if err := database.DB.Where("email = ?", usuario.Email).First(&existingUser).Error; err == nil {
+		c.JSON(http.StatusConflict, gin.H{"error": "El email ya está registrado"})
+		return
+	}
+
+	// Establece el rol por defecto como "Socio" si no se especifica
+	if usuario.Rol == "" {
+		usuario.Rol = "Socio"
+	}
+
 	// Hashea la contraseña antes de guardarla en la base de datos
 	usuario.Password = utils.HashPasswordSHA256(usuario.Password)
 
@@ -88,6 +100,10 @@ func CrearUsuario(c *gin.Context) {
 		return
 	}
 
-	// Devuelve el usuario creado con estado 201
-	c.JSON(http.StatusCreated, usuario)
+	// Devuelve el usuario creado con estado 201 (sin la contraseña)
+	usuario.Password = ""
+	c.JSON(http.StatusCreated, gin.H{
+		"message": "Usuario creado exitosamente",
+		"user":    usuario,
+	})
 }

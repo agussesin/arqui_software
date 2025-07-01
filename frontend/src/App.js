@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // Importaciones de componentes y páginas
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Signup from './pages/Signup';
 import AdminPanel from './pages/AdminPanel';
 import PricingSection from './components/PricingSection';
 import Navbar from './components/Navbar';
@@ -34,6 +35,9 @@ function App() {
         
         {/* Ruta de autenticación */}
         <Route path="/login" element={<Login />} />
+        
+        {/* Ruta de registro */}
+        <Route path="/signup" element={<Signup />} />
         
         {/* Ruta de planes de precios */}
         <Route path="/planes" element={<PricingSection />} />

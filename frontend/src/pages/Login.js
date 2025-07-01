@@ -73,6 +73,13 @@ export default function Login() {
         {/* Mensaje de error si existe */}
         {error && <p className="login-error">{error}</p>}
       </form>
+
+      {/* Link para crear cuenta */}
+      <div style={{ marginTop: '24px', textAlign: 'center' }}>
+        <p style={{ color: '#ccc', margin: '0' }}>
+          ¿No tienes cuenta? <a href="/signup" style={{ color: '#007bff', textDecoration: 'none', fontWeight: 'bold' }}>Créala aquí</a>
+        </p>
+      </div>
     </div>
   );
 }

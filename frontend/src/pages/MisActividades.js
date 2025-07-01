@@ -13,12 +13,15 @@ const MisActividades = () => {
 
   // Función para filtrar actividades
   const filtrarActividades = (inscripciones, terminoBusqueda) => {
+    // Asegurar que inscripciones sea un array válido
+    const inscripcionesArray = inscripciones || [];
+    
     if (!terminoBusqueda.trim()) {
-      return inscripciones;
+      return inscripcionesArray;
     }
 
     const termino = terminoBusqueda.toLowerCase().trim();
-    return inscripciones.filter((inscripcion) => {
+    return inscripcionesArray.filter((inscripcion) => {
       const actividad = inscripcion.actividad;
       return (
         actividad.descripcion?.toLowerCase().includes(termino) ||
@@ -58,8 +61,9 @@ const MisActividades = () => {
         const userId = decoded.user_id || decoded.id_usuario;
 
         const response = await api.get(`/mis-actividades/${userId}`);
-        setActividades(response.data);
-        setActividadesFiltradas(response.data); // Inicializar las filtradas
+        const actividades = response.data || []; // Asegurar que siempre sea un array
+        setActividades(actividades);
+        setActividadesFiltradas(actividades); // Inicializar las filtradas
         setError(null);
       } catch (err) {
         setError('Error al cargar tus actividades');
@@ -98,8 +102,12 @@ const MisActividades = () => {
       <div className="mis-actividades-main">
         <h1>Mis Actividades</h1>
 
-        {Array.isArray(actividades) && actividades.length === 0 ? (
-          <p>No estás inscripto en ninguna actividad todavía</p>
+        {(!actividades || actividades.length === 0) ? (
+          <div className="no-activities">
+            <h3>No tienes actividades inscritas</h3>
+            <p>¡Es un buen momento para empezar! Explora nuestras actividades disponibles.</p>
+            <a href="/actividades" className="cta-btn">Ver actividades disponibles</a>
+          </div>
         ) : (
           <>
             {/* Barra de búsqueda */}
@@ -140,11 +148,11 @@ const MisActividades = () => {
                 )}
               </div>
               <div className="search-results-count">
-                {actividadesFiltradas.length} actividad{actividadesFiltradas.length !== 1 ? 'es' : ''} encontrada{actividadesFiltradas.length !== 1 ? 's' : ''}
+                {(actividadesFiltradas || []).length} actividad{(actividadesFiltradas || []).length !== 1 ? 'es' : ''} encontrada{(actividadesFiltradas || []).length !== 1 ? 's' : ''}
               </div>
             </div>
 
-            {actividadesFiltradas.map((inscripcion) => (
+            {(actividadesFiltradas || []).map((inscripcion) => (
               <ActividadCardVisual
                 key={inscripcion.id_inscripcion}
                 actividad={inscripcion.actividad}
@@ -152,7 +160,7 @@ const MisActividades = () => {
               />
             ))}
 
-            {actividadesFiltradas.length === 0 && busqueda && (
+            {(actividadesFiltradas || []).length === 0 && busqueda && (
               <div className="no-results">
                 <p>No se encontraron actividades que coincidan con "{busqueda}"</p>
                 <button 

@@ -3,15 +3,11 @@ package middleware // Este paquete contiene funciones que actúan como filtros i
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"     // Framework para manejar solicitudes HTTP
 	"github.com/golang-jwt/jwt/v5" // Librería para validar y decodificar tokens JWT
 )
-
-// Se obtiene la clave secreta del token desde una variable de entorno
-var jwtKey = []byte(os.Getenv("JWT_SECRET"))
 
 // Middleware que valida el JWT Y verifica que el usuario tenga el rol "Admin"
 func ValidarTokenYEsAdmin() gin.HandlerFunc {
