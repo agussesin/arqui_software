@@ -37,3 +37,9 @@ api.interceptors.request.use(
 // Exporta la instancia configurada de axios
 export default api;
 
+export const inscribirUsuarioEnActividad = (id_usuario, id_actividad) =>
+  api.post('/inscripciones', { id_usuario, id_actividad });
+
+export const desinscribirUsuarioDeActividad = (id_usuario, id_actividad) =>
+  api.delete('/inscripciones', { data: { id_usuario, id_actividad } });
+

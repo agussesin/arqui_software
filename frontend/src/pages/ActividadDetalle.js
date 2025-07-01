@@ -2,18 +2,24 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from '../services/axios';
 import './ActividadDetalle.css';
+import BotonInscripcion from '../components/BotonInscripcion';
 
 function ActividadDetalle() {
   const { id } = useParams();
   const [actividad, setActividad] = useState(null);
   const [mensaje, setMensaje] = useState('');
+  const [inscripto, setInscripto] = useState(false);
   const id_usuario = localStorage.getItem('id_usuario');
 
   useEffect(() => {
     axios.get(`/actividades/${id}`)
-      .then((res) => setActividad(res.data))
+      .then((res) => {
+        setActividad(res.data);
+        // Suponiendo que el backend retorna un array de inscriptos o un campo inscripto para el usuario actual
+        setInscripto(res.data.inscripto || (res.data.inscriptosUsuarios?.includes(Number(id_usuario))));
+      })
       .catch(() => setMensaje('Error al cargar la actividad'));
-  }, [id]);
+  }, [id, id_usuario]);
 
   const inscribirse = () => {
     axios.post('/inscripciones', {
@@ -47,7 +53,19 @@ function ActividadDetalle() {
           <p><strong>Cupo:</strong> {actividad.cupo}</p>
           <p><strong>Duración:</strong> {actividad.duracion} minutos</p>
 
-          <button onClick={inscribirse} className="actividad-detalle-btn">Inscribirme</button>
+          <BotonInscripcion
+            actividad={{
+              id: actividad.id || actividad.id_actividad,
+              cupoMaximo: actividad.cupo,
+              inscriptos: actividad.inscriptos || actividad.cantidad_inscriptos || 0
+            }}
+            inscripto={inscripto}
+            onCambioInscripcion={(nuevoEstado, nuevosInscriptos) => {
+              setInscripto(nuevoEstado);
+              setActividad((prev) => ({ ...prev, inscriptos: nuevosInscriptos }));
+              setMensaje(nuevoEstado ? 'Inscripción exitosa ✅' : 'Desinscripción exitosa ✅');
+            }}
+          />
           {mensaje && <p className="actividad-detalle-msg">{mensaje}</p>}
         </div>
       </div>

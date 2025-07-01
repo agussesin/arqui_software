@@ -122,7 +122,7 @@ func EliminarInscripcion(c *gin.Context) {
 
 	var inscripcion models.Inscripcion
 	if err := database.DB.Where("id_usuario = ? AND id_actividad = ?", idUsuario, idActividad).First(&inscripcion).Error; err != nil {
-		c.JSON(404, gin.H{"error": "Inscripción no encontrada"})
+		c.JSON(200, gin.H{"mensaje": "No estás inscripto en esta actividad"})
 		return
 	}
 

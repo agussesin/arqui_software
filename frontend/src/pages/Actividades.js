@@ -10,6 +10,7 @@ function Actividades() {
   const [mensaje, setMensaje] = useState('');
   const [inscripciones, setInscripciones] = useState([]);
   const [loadingInscripciones, setLoadingInscripciones] = useState(true);
+  const [cuposRestantes, setCuposRestantes] = useState(null);
 
   const token = localStorage.getItem('token');
 
@@ -43,6 +44,14 @@ function Actividades() {
       .finally(() => setLoadingInscripciones(false));
   }, [id_usuario]);
 
+  useEffect(() => {
+    if (detalle) {
+      setCuposRestantes(detalle.cupo - (detalle.inscriptos || 0));
+    } else {
+      setCuposRestantes(null);
+    }
+  }, [detalle]);
+
   const estaInscripto = (id_actividad) => {
     if (!Array.isArray(inscripciones)) return false;
     return inscripciones.some(insc => insc.id_actividad === id_actividad);
@@ -56,6 +65,7 @@ function Actividades() {
         id_actividad: detalle.id_actividad
       });
       setMensaje('¡Inscripción exitosa!');
+      setCuposRestantes((prev) => (prev !== null ? prev - 1 : prev));
       const resp = await axios.get(`/mis-actividades/${id_usuario}`);
       setInscripciones(resp.data);
     } catch {
@@ -63,11 +73,12 @@ function Actividades() {
     }
   };
 
-  const desinscribirse = async () => {
+  const handleDesinscribirse = async () => {
     if (!detalle || !id_usuario) return;
     try {
       await axios.delete(`/inscripciones/${id_usuario}/${detalle.id_actividad}`);
       setMensaje('Te desinscribiste correctamente.');
+      setCuposRestantes((prev) => (prev !== null ? prev + 1 : prev));
       const resp = await axios.get(`/mis-actividades/${id_usuario}`);
       setInscripciones(resp.data);
     } catch {
@@ -84,33 +95,10 @@ function Actividades() {
           <ActividadCardVisual
             key={actividad.id_actividad}
             actividad={actividad}
-            onVerDetalle={setDetalle}
+            id_usuario={id_usuario}
+            usuarioYaInscripto={estaInscripto(actividad.id_actividad)}
           />
         ))}
-
-        {detalle && (
-          <div className="detalle-actividad">
-            <h2>Detalle de la Actividad</h2>
-            <p><strong>Descripción:</strong> {detalle.descripcion}</p>
-            <p><strong>Profesor:</strong> {detalle.profesor}</p>
-            <p><strong>Categoría:</strong> {detalle.categoria}</p>
-            <p><strong>Duración:</strong> {detalle.duracion} minutos</p>
-            <p><strong>Periodicidad:</strong> {detalle.periodicidad}</p>
-            <p><strong>Cupo:</strong> {detalle.cupo}</p>
-            {!loadingInscripciones && (
-              estaInscripto(detalle.id_actividad) ? (
-                <button onClick={desinscribirse} className="actividad-btn">Desinscribirme</button>
-              ) : (
-                <button onClick={inscribirse} className="actividad-btn">Inscribirme</button>
-              )
-            )}
-            {mensaje && (
-              <p className="mensaje" style={{
-                color: mensaje.includes('éxito') || mensaje.includes('correctamente') ? 'lightgreen' : 'red'
-              }}>{mensaje}</p>
-            )}
-          </div>
-        )}
       </div>
     </div>
   );
